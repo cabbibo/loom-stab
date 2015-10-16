@@ -1,0 +1,251 @@
+<html>
+<head>
+
+  <style>
+   @font-face {
+      font-family: "GeoSans";
+      src: url("assets/GeosansLight.ttf");
+    }
+    html{ color:#ffc; background:#000; font-family:"GeoSans" }
+    body{
+      font-size:30px;
+    }
+    a{
+      color: #fff;
+    }
+    #renderer{
+      position:fixed;
+      top:0px;
+      left:0px;
+    }
+    code{
+      color:#fff;
+      font-size:20px;
+    }
+  </style>
+
+</head>
+<body style="margin:0px">
+
+<script src="lib/three.js"></script>
+<script src="lib/jquery.min.js"></script>
+<script src="lib/stats.min.js"></script>
+<script src="lib/underscore.js"></script>
+<script src="lib/TrackballControls.js"></script>
+<script src="lib/ShaderLoader.js"></script>
+<script src="lib/ObjectControls.js"></script>
+
+<script src="lib/PhysicsRenderer.js"></script>
+
+
+<script src="src/Catenary.js"></script>
+<script src="src/Pin.js"></script>
+<script src="src/Transform.js"></script>
+<script src="src/Stabable.js"></script>
+
+
+<script>
+
+
+  var scene , camera , renderer, clock , controls, objectControls;
+
+
+  var iPoint;
+
+
+  var shaders = new ShaderLoader( 'shaders' );
+
+  //shaders.load( 'ss-curlFront'    , 'sim'    , 'simulation' );
+
+  shaders.load( 'fs-catenary'  , 'catenary' , 'fragment' );
+  shaders.load( 'vs-catenary'  , 'catenary' , 'vertex'   );
+
+  shaders.load( 'fs-stab'  , 'stab' , 'fragment' );
+  shaders.load( 'vs-stab'  , 'stab' , 'vertex'   );
+
+  shaders.shaderSetLoaded = function(){
+
+    init();
+    animate();
+
+  }
+
+
+  var matcap = THREE.ImageUtils.loadTexture('img/rough-aluminium.jpg');
+
+  var normal = THREE.ImageUtils.loadTexture('img/t_n_snakeSkin.png');
+   
+  normal.wrapT = normal.wrapS = THREE.RepeatWrapping;
+
+
+  var G = {
+
+    v1: new THREE.Vector3(),
+    v2: new THREE.Vector3(),
+
+    pins :[],
+    connections:[],
+    transforms:[],
+    stabables:[],
+
+    activeConnection : null,
+    activeNode : null,
+
+    hoveredPin: null,
+    activePin: null,
+
+    catenarySize : 32,
+
+
+    theme:{
+
+      pinGeo: new THREE.IcosahedronGeometry( .03 , 1 ),
+      pinInMat: new THREE.MeshNormalMaterial(),
+      pinOutMat: new THREE.MeshBasicMaterial(0xffffff),
+
+      transformGeo: new THREE.CubeGeometry( .74 , .4 , .1 ),
+      transformMat: new THREE.MeshNormalMaterial(),
+
+      stabGeo: new THREE.CubeGeometry( .4 , .4 , .4 , 30 , 30 , 30 ),
+      stabMat: null
+
+    },
+
+    t_normal : normal,
+    t_matcap : matcap,
+
+
+
+  }
+
+  
+  function init(){
+
+
+
+      G.theme.stabGeo.computeTangents();
+      /*
+
+         Default threejs stuff!
+
+      */
+      scene = new THREE.Scene();
+
+      var ar = window.innerWidth / window.innerHeight;
+
+      camera = new THREE.PerspectiveCamera( 40, ar , .01, 100 );
+      camera.position.z = 3;
+
+      renderer = new THREE.WebGLRenderer();
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      //renderer.setPixelRatio( .5 )
+
+      renderer.domElement.id = "renderer"
+      document.body.appendChild( renderer.domElement );
+
+
+      objectControls = new ObjectControls( camera );
+
+
+      controls = new THREE.TrackballControls( camera );
+
+      //controls.noRotate = true;
+      clock = new THREE.Clock();
+
+      stats = new Stats();
+      stats.domElement.style.position = "absolute";
+      stats.domElement.style.left = "0px";
+      stats.domElement.style.bottom = "-30px";
+      stats.domElement.style.zIndex = "999";
+      document.body.appendChild( stats.domElement );
+
+      var g = new THREE.CubeGeometry( .3 , .3 , .3 );
+      var m = new THREE.MeshNormalMaterial();
+
+      for(var i = 0; i< 5; i++ ){
+
+        var stabable = new Stabable( objectControls , shaders.vs.stab , shaders.fs.stab );
+        G.stabables.push( stabable );
+
+
+        G.v1.set( (Math.random() -.5) * 3,
+                  (Math.random() -.5) * 3,
+                  (Math.random() -.5) * 3 )
+
+
+        stabable.place( G.v1 );
+
+      }
+
+
+      mouse = new THREE.Mesh( new THREE.IcosahedronGeometry( .01 , 1 ), new THREE.MeshNormalMaterial());
+
+      scene.add( mouse );
+
+
+      var geo = new THREE.PlaneGeometry( 100000 , 100000 );
+      var mat = new THREE.MeshNormalMaterial({side: THREE.DoubleSide, opacity: 0, transparent: true});
+      intersectionPlane = new THREE.Mesh( geo , mat );
+      //intersectionPlane.visible = false;
+      scene.add( intersectionPlane );
+
+
+  }
+
+  function animate(){
+
+
+
+
+    intersectionPlane.lookAt( camera.position );
+
+
+
+    iPoint = objectControls.raycaster.intersectObject( intersectionPlane );
+    //1console.log( iPoint );
+
+    if( iPoint[0] ) mouse.position.copy( iPoint[0].point );
+
+
+
+
+    controls.update();
+    objectControls.update();
+
+    for( var i = 0; i < G.pins.length; i++ ){
+
+      G.pins[i].update();
+
+    }
+
+    for( var i = 0; i < G.connections.length; i++ ){
+
+      G.connections[i].update();
+
+    }
+
+    for( var i = 0; i < G.stabables.length; i++ ){
+
+      G.stabables[i].update();
+
+    }
+
+
+   
+
+    renderer.render( scene , camera );
+    stats.update();
+
+        requestAnimationFrame( animate );
+
+  }
+
+
+
+</script>
+ 
+
+
+
+</body>
+<html>
