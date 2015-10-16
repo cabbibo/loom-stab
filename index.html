@@ -60,6 +60,10 @@
   shaders.load( 'fs-catenary'  , 'catenary' , 'fragment' );
   shaders.load( 'vs-catenary'  , 'catenary' , 'vertex'   );
 
+
+  shaders.load( 'fs-tube'  , 'tube' , 'fragment' );
+  shaders.load( 'vs-tube'  , 'tube' , 'vertex'   );
+
   shaders.load( 'fs-stab'  , 'stab' , 'fragment' );
   shaders.load( 'vs-stab'  , 'stab' , 'vertex'   );
 
@@ -107,8 +111,9 @@
       transformMat: new THREE.MeshNormalMaterial(),
 
       stabGeo: new THREE.CubeGeometry( .4 , .4 , .4 , 30 , 30 , 30 ),
-      stabMat: null
+      stabMat: null,
 
+      catenaryShader:{}
     },
 
     t_normal : normal,
@@ -124,6 +129,10 @@
 
 
       G.theme.stabGeo.computeTangents();
+
+      G.theme.catenaryShader.vs = shaders.vs.tube;
+      G.theme.catenaryShader.fs = shaders.fs.tube;
+
       /*
 
          Default threejs stuff!

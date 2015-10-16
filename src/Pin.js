@@ -98,9 +98,9 @@ Pin.prototype.select = function(){
     
     var c;
     if( this.type == "out" ){
-      c = new Catenary( this.type , G.catenarySize , shaders.vs.catenary , shaders.fs.catenary , this.body.position.clone() );
+      c = new Catenary( this.type , G.catenarySize , G.theme.catenaryShader.vs , G.theme.catenaryShader.fs , this.body.position.clone() );
     }else{
-      c = new Catenary( this.type ,  G.catenarySize  , shaders.vs.catenary , shaders.fs.catenary , null , this.body.position.clone() );
+      c = new Catenary( this.type ,  G.catenarySize  , G.theme.catenaryShader.vs , G.theme.catenaryShader.fs , null , this.body.position.clone() );
     }
 
     this.connections.push( c );
