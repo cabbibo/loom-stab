@@ -130,14 +130,13 @@ Catenary.prototype.createTubeGeo = function( subdivisions ){
     for( var j = 0; j < sides; j++){
 
       var index = ( i * sides * 3 * 2 + j * 3 * 2);
-      console.log( index );
+
 
       p1.set( i / subdivisions , j / sides , 0 );
       p2.set( i / subdivisions , ( j + 1 ) / sides , 0 );
       p3.set( ( i + 1 ) / subdivisions , j / sides , 0 );
       p4.set( (i+1) / subdivisions , (j+1)  / sides , 0 );
 
-      console.log( p1 )
 
       positions[ index * 3 + 0 ]  = p1.x;
       positions[ index * 3 + 1 ]  = p1.y;

@@ -40,6 +40,8 @@ Pin.prototype.place = function(p){
 }
 
 Pin.prototype.updatePosition = function(){
+  console.log('111')
+  console.log( this.relativePosition );
   this.place( this.relativePosition );
 }
 

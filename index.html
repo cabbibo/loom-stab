@@ -121,6 +121,10 @@
     t_normal : normal,
     t_matcap : matcap,
 
+    q:false,
+    w:false,
+    e:false
+
 
 
   }
@@ -160,7 +164,7 @@
 
       controls = new THREE.TrackballControls( camera );
 
-      //controls.noRotate = true;
+      controls.noRotate = true;
       clock = new THREE.Clock();
 
       stats = new Stats();
@@ -173,15 +177,15 @@
       var g = new THREE.CubeGeometry( .3 , .3 , .3 );
       var m = new THREE.MeshNormalMaterial();
 
-      for(var i = 0; i< 50; i++ ){
+      for(var i = 0; i< 20; i++ ){
 
         var stabable = new Stabable( objectControls , shaders.vs.stab , shaders.fs.stab );
         G.stabables.push( stabable );
 
 
-        G.v1.set( (Math.random() -.5) * 10,
-                  0,
-                  (Math.random() -.5) * 10 )
+        G.v1.set( (Math.random() -.5) * 5,
+                  (Math.random() -.5) * 5,
+                  (Math.random() -.5) * 2 )
 
 
         stabable.place( G.v1 );
@@ -199,6 +203,15 @@
       intersectionPlane = new THREE.Mesh( geo , mat );
       //intersectionPlane.visible = false;
       scene.add( intersectionPlane );
+
+
+
+      window.addEventListener( 'resize', onWindowResize, false );
+      window.addEventListener( 'keydown', onKeyDown, false );
+      window.addEventListener( 'keyup', onKeyUp, false );
+
+
+
 
 
   }
@@ -251,6 +264,58 @@
 
   }
 
+
+  function onWindowResize() {
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+   // grain.play();
+
+  }
+
+  function onKeyDown(e){
+
+
+    if( e.keyCode == 81 ){
+
+      G.q = true
+
+    }else if( e.keyCode == 87 ){
+
+      G.w = true
+
+    }else if( e.keyCode == 69 ){
+
+      G.e = true
+
+    }
+
+
+
+  }
+
+  function onKeyUp(e){
+
+
+    if( e.keyCode == 81 ){
+
+      G.q = false
+
+    }else if( e.keyCode == 87 ){
+
+      G.w = false
+
+    }else if( e.keyCode == 69 ){
+
+      G.e = false
+
+    }
+
+
+
+  }
 
 
 </script>

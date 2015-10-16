@@ -42,8 +42,8 @@ function Stabable( objectControls , vs , fs ){
 
   this.body.hoverOver = this.hoverOver.bind( this );
   this.body.hoverOut = this.hoverOut.bind( this );
-  this.body.update = this.move.bind( this );
-  this.body.select = this.select.bind( this );
+  this.body.update   = this.move.bind( this );
+  this.body.select   = this.select.bind( this );
   this.body.hovering = this.hovering.bind( this );
 
 
@@ -80,6 +80,8 @@ Stabable.prototype.addPin = function( type , position ){
     //p.body.rotation.z =  Math.PI / 2
 
   }
+
+  p.select();
 
 
 }
@@ -124,9 +126,12 @@ Stabable.prototype.place = function(p){
 
 Stabable.prototype.move = function(){
 
- // this.position.copy( iPoint[0].point );
+  if( G.q == true ){
 
- // this.updatePinPositions();
+    this.position.copy( iPoint[0].point );
+
+    this.updatePinPositions();
+  }
 
  
 }
@@ -134,6 +139,7 @@ Stabable.prototype.move = function(){
 Stabable.prototype.updatePinPositions = function(){
  
  for( var i = 0; i< this.outPins.length; i++  ){
+
     this.outPins[i].updatePosition();
   }
 
@@ -144,65 +150,64 @@ Stabable.prototype.updatePinPositions = function(){
 
 }
 
-
-Stabable.prototype.updatePinPositions = function(){
- 
-}
-
 Stabable.prototype.select = function(){
 
 
-  var i = this.controls.getSingleIntersection( this.body );
-  if( i ){
+  if( G.q == false ){
 
-    console.log( 'yup')
+    var i = this.controls.getSingleIntersection( this.body );
+    if( i ){
 
-    G.v1.copy( i.point );
+      console.log( 'yup')
 
-    G.v1.applyMatrix4( this.iModelMat );
+      G.v1.copy( i.point );
 
-    //G.v1.sub( this.position );
+      G.v1.applyMatrix4( this.iModelMat );
 
-    var v = new THREE.Vector4();
+      //G.v1.sub( this.position );
 
-    v.x = G.v1.x * 1.3;
-    v.y = G.v1.y * 1.3;
-    v.z = G.v1.z * 1.3;
-    v.w = 1;
+      var v = new THREE.Vector4();
 
-
-
-    this.pins[ this.currentPin ].copy( v );
+      v.x = G.v1.x * 1.3;
+      v.y = G.v1.y * 1.3;
+      v.z = G.v1.z * 1.3;
+      v.w = 1;
 
 
-    G.v2.x = v.x;
-    G.v2.y = v.y;
-    G.v2.z = v.z;
 
-    G.v2.applyMatrix4( this.body.matrixWorld );
-    G.v2.sub( this.position );
+      this.pins[ this.currentPin ].copy( v );
 
 
-    var r = Math.random();
+      G.v2.x = v.x;
+      G.v2.y = v.y;
+      G.v2.z = v.z;
+
+      G.v2.applyMatrix4( this.body.matrixWorld );
+      G.v2.sub( this.position );
 
 
-    if( G.activeConnection ){
+      var r = Math.random();
 
-      if( G.activeConnection.type == "in" ){
-        this.addPin( "out" , G.v2 );
+
+      if( G.activeConnection ){
+
+        if( G.activeConnection.type == "in" ){
+          this.addPin( "out" , G.v2 );
+        }else{
+          this.addPin( "in" , G.v2 );
+        }
+        
       }else{
-        this.addPin( "in" , G.v2 );
+        this.addPin( "out", G.v2)
       }
-      
-    }else{
-      this.addPin( "out", G.v2)
-    }
-    //this.addPin( r < .5 ? "in" : "out" , G.v2 );
+      //this.addPin( r < .5 ? "in" : "out" , G.v2 );
 
-    this.currentPin ++;
+      this.currentPin ++;
 
-    if( this.currentPin > 19 ){
-      this.currentPin = 0.;
+      if( this.currentPin > 19 ){
+        this.currentPin = 0.;
+      }
+
     }
 
   }
@@ -213,6 +218,9 @@ Stabable.prototype.select = function(){
 }
 
 Stabable.prototype.hoverOver = function(){
+
+    G.activeTransform = this;
+  intersectionPlane.position.copy( this.position )
 
   for( var i = 0; i< this.inPins.length; i++ ){
     this.inPins[i].hoverOver();
@@ -227,6 +235,7 @@ Stabable.prototype.hoverOver = function(){
 
 Stabable.prototype.hoverOut = function(){
 
+  G.activeTransform = null;
   this.uniforms.hoverPoint.value.w = 0;
 
   for( var i = 0; i< this.inPins.length; i++ ){
