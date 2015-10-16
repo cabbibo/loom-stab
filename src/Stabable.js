@@ -35,6 +35,11 @@ function Stabable( objectControls , vs , fs ){
 
   this.body = new THREE.Mesh( G.theme.stabGeo , mat );
 
+
+
+  this.wireframe = new THREE.Mesh( G.theme.stabGeoWF , new THREE.MeshBasicMaterial({wireframe:true,transparent:true,opacity:.3}) );
+  this.body.add( this.wireframe );
+
   this.body.hoverOver = this.hoverOver.bind( this );
   this.body.hoverOut = this.hoverOut.bind( this );
   this.body.update = this.move.bind( this );
@@ -209,6 +214,13 @@ Stabable.prototype.select = function(){
 
 Stabable.prototype.hoverOver = function(){
 
+  for( var i = 0; i< this.inPins.length; i++ ){
+    this.inPins[i].hoverOver();
+  }
+
+  for( var i = 0; i< this.outPins.length; i++ ){
+    this.outPins[i].hoverOver();
+  }
 
 
 }
@@ -216,6 +228,15 @@ Stabable.prototype.hoverOver = function(){
 Stabable.prototype.hoverOut = function(){
 
   this.uniforms.hoverPoint.value.w = 0;
+
+  for( var i = 0; i< this.inPins.length; i++ ){
+    this.inPins[i].hoverOut();
+  }
+
+  for( var i = 0; i< this.outPins.length; i++ ){
+    this.outPins[i].hoverOut();
+  }
+
 
 
 }

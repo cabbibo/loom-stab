@@ -182,10 +182,21 @@ Catenary.prototype.update = function(){
 
     if( this.type == "out" ){
       this.endPoint.copy( mouse.position );
+
+      G.v1.copy( mouse.position );
+      G.v1.sub( this.startPoint );
+      G.v1.normalize();
+      G.v1.multiplyScalar( -.1 );
+      this.endDir.copy( G.v1);
     }else{
       this.startPoint.copy( mouse.position );
-    }
 
+      G.v1.copy( mouse.position );
+      G.v1.sub( this.endPoint );
+      G.v1.normalize();
+      G.v1.multiplyScalar( -.1 );
+      this.startDir.copy( G.v1);
+    }
 
   }
 

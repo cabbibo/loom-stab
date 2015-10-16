@@ -97,10 +97,19 @@ Pin.prototype.select = function(){
   if( !G.activeConnection ){
     
     var c;
+
+
+    var dir = new THREE.Vector3();
+    dir.copy( this.body.position );
+    dir.sub( this.transform.body.position );
+    dir.normalize();
+    dir.multiplyScalar( .3 );
+
+
     if( this.type == "out" ){
-      c = new Catenary( this.type , G.catenarySize , G.theme.catenaryShader.vs , G.theme.catenaryShader.fs , this.body.position.clone() );
+      c = new Catenary( this.type , G.catenarySize , G.theme.catenaryShader.vs , G.theme.catenaryShader.fs , this.body.position.clone() , null , dir );
     }else{
-      c = new Catenary( this.type ,  G.catenarySize  , G.theme.catenaryShader.vs , G.theme.catenaryShader.fs , null , this.body.position.clone() );
+      c = new Catenary( this.type ,  G.catenarySize  , G.theme.catenaryShader.vs , G.theme.catenaryShader.fs , null , this.body.position.clone() , null , dir );
     }
 
     this.connections.push( c );
@@ -121,10 +130,19 @@ Pin.prototype.select = function(){
       
       this.connections.push( G.activeConnection );
 
+
+       var dir = new THREE.Vector3();
+      dir.copy( this.body.position );
+      dir.sub( this.transform.body.position );
+      dir.normalize();
+      dir.multiplyScalar( .3 )
+
       if( this.type == "in" ){
         G.activeConnection.endPoint.copy( this.position );
+        G.activeConnection.endDir.copy( dir );
       }else{
         G.activeConnection.startPoint.copy( this.position );
+        G.activeConnection.startDir.copy( dir );
       }
 
       G.activeConnection.active = false;

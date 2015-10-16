@@ -1,6 +1,7 @@
 
 uniform sampler2D t_normal;
 uniform sampler2D t_matcap;
+uniform vec3 color;
 
 
 varying vec3 vNorm;
@@ -24,6 +25,6 @@ void main(){
   col =  texture2D( t_matcap , semLookup( vEye , fNorm , modelViewMatrix , normalMatrix ) ).xyz;
 
   //col = texture2D( t_normal , vUv ).xyz;
-  gl_FragColor = vec4( col ,  1. );
+  gl_FragColor = vec4( col * color ,  1. );
   
 }
